@@ -223,6 +223,12 @@ window.yun = (function() {
 		}
 	}
 	
+	function jsonp(_url) {
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = _url;
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
 	/* int rand(int _min, int _max) */
 	function rand(_min, _max) {
 		return Math.random() * (_max - _min) + _min;
@@ -241,6 +247,7 @@ window.yun = (function() {
 		isFloat: isFloat,
 		timer: timer,
 		ajax: ajax,
+		jsonp: jsonp,
 		rand: rand
 	};
 })();
