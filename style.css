@@ -1,0 +1,49 @@
+* {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	list-style-type: none;
+	font-family: 微軟正黑體;
+}
+
+html {
+	font-size: 20px;
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	background-color: #f0f0f0;
+	color: #000;
+}
+
+.permission-fail {
+	height: 100%;
+	width: 100%;
+	text-align: center;
+}
+
+.permission-fail::before{
+  content:'';
+  display: inline-block;
+  height: 100%;
+  width: 0;
+  vertical-align: middle;
+}
+
+.permission-fail > .box {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.permission-fail > .box > .title {
+	text-align: left;
+	font-size: 1.5em;
+	font-weight: 900;
+}
+
+.permission-fail > .box > .content {
+	text-align: left;
+	font-size: 0.6em;
+	color: #666;
+}
