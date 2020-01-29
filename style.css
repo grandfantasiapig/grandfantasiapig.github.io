@@ -1,50 +1,70 @@
 * {
 	margin: 0;
 	padding: 0;
-	list-style: none;
-	list-style-type: none;
-	font-family: 微軟正黑體;
+}
+
+html,
+body {
+	height: 100%;
 }
 
 html {
 	font-size: 20px;
+}
+
+.wrapper,
+.tabcontrol {
 	height: 100%;
 }
 
-body {
-	min-width: 300px;
-	height: 100%;
-	background-color: #f0f0f0;
-	color: #000;
+.tabcontrol {
+	display: flex;
+	flex-direction: column;
 }
 
-.permission-fail {
+.tabcontrol > .panel:first-child {
+	padding: 10px 10px 0 10px;
+	background-color: #fff;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	/*border-bottom: 1px #000 solid;*/
+}
+
+.tabcontrol > .panel:first-child > .tab {
+	cursor: pointer;
+	border: 1px #000 solid;
+	border-bottom: 1px #f00 solid;
+	padding: 5px 15px 5px 15px;
+	background-color: #fff;
+	margin-right: 10px;
+}
+
+.tabcontrol > .panel:first-child > .tabfill {
+	flex: 1;
+	border-bottom: 1px #000 solid;
+	padding: 5px 15px 5px 15px;
+	background-color: #fff;
+	margin-right: 10px;
+}
+
+/**/
+
+.tabcontrol > .panel:last-child {
+	flex: 1;
+}
+
+.tabcontrol .panel .tabpage {
 	height: 100%;
+}
+.tabcontrol .panel .tabpage iframe {
 	width: 100%;
-	text-align: center;
+	height: 100%;
 }
 
-.permission-fail::before{
-  content:'';
-  display: inline-block;
-  height: 100%;
-  width: 0;
-  vertical-align: middle;
-}
-
-.permission-fail > .box {
-	display: inline-block;
-	vertical-align: middle;
-}
-
-.permission-fail > .box > .title {
-	text-align: left;
-	font-size: 1.5em;
-	font-weight: 900;
-}
-
-.permission-fail > .box > .content {
-	text-align: left;
-	font-size: 0.6em;
-	color: #666;
-}
+/* tabBackgroundColor {
+    background: f1f3f4,
+    default: f1f3f4,
+    active: #fff,
+    hover: #e8eaed
+} */

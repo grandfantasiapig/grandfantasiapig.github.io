@@ -1,7 +1,10 @@
 window.yun = (function() {
 	'use strict';
-	var yunVersion = '2.1';
-	
+	var yunVersion = '2.2',
+		$ = function(_selector) {
+			return document.querySelectorAll(_selector);
+		};
+		
 	//#region [green] is/type/　　　　　　　　　　　　								#
 	// bool isExist(any _something)
 	function isExist(_something) {
@@ -123,131 +126,79 @@ window.yun = (function() {
 		};
 	}
 	
-	/* void ajax(_config = {
+	/* void jsonp({
 		string url,
-		optional string arg,
-		optional string method,
-		optional function success,
-		optional timeout = {
-			int time, //unit: second
-			function response
+		string arg,
+		string callback,
+		function success(res),
+		timeout = {
+			int time, //unit min second
+			function reponese	
 		}
-		optional function failure
-		optional bool async
 	}) */
-	function ajax(_config) {
-		_config = isExist(_config) ? _config : {};
-		var __default = {
-			method: 'get',
-			url: '',
-			arg: '',
-			success: null,
-			timeout: null,
-			failure: null,
-			async: true
-		};
-		for (var key in __default) {
-			if (!isExist(_config[key])) {
-				_config[key] = __default[key];
-			}
-		}
-		_config.method = _config.method.toLowerCase();
-		_config.arg = encodeURI(_config.arg);
+	function jsonp(_config) {
+		_config.script = document.createElement('script');
+		_config.script.type = 'text/javascript';
+		_config.script.src = _config.url + '?' + _config.arg;
+		
 		_config.timesup = false;
 		_config.startTime = -1;
-		if (_config.timeout !== null) {
-			_config.timer = new timer({
-				interval: 1000,
-				tick: function() {
-					var d = new Date();
-					var t = d.getTime();
-					if (t - _config.startTime >= _config.timeout.time) {
-						this.stop();
-						_config.timesup = true;
-						if (isFunction(_config.timeout.response)) {
-							_config.timeout.response.call(null);
-						}
+		
+		_config.timer = new timer({
+			interval: 1,
+			tick: function() {
+				var d = new Date();
+				var t = d.getTime();
+				if (t - _config.startTime >= _config.timeout.time) {
+					this.stop();
+					_config.timesup = true;
+					if (isFunction(_config.timeout.response)) {
+						_config.timeout.response.call(null);
 					}
+					
+					window[_config.callback] = null;
+					$('head')[0].removeChild(_config.script);
 				}
-			});
-		}
-		
-		//#region XMLHttpRequest
-		var httpRequest;
-		if (window.XMLHttpRequest) {
-			httpRequest = new XMLHttpRequest();
-			if (httpRequest.overrideMimeType) {
-				httpRequest.overrideMimeType('text/xml');
 			}
-		} else if (window.ActiveXObject) {
-			try {
-				httpRequest = new ActiveXObject('Msxml2.XMLHTTP');
-			} catch (e) {
-				try {
-					httpRequest = new ActiveXObject('Microsoft.XMLHTTP');
-				} catch (e) {}
-			}
-		}
-		//#endregion
+		});
 		
-		httpRequest.onreadystatechange = function() {
+		window[_config.callback] = function(res) {
 			if (!_config.timesup) {
-				if (httpRequest.readyState == 4) {
-					if (_config.timeout !== null) {
-						_config.timer.stop();
-					}
-					if (httpRequest.status == 200) {
-						if (isFunction(_config.success)) {
-							_config.success.call(httpRequest, httpRequest.responseText);
-						}
-					} else {
-						if (isFunction(_config.failure)) {
-							_config.failure.call(httpRequest, httpRequest.status);
-						}
-					}
+				if (_config.timeout !== null) {
+					_config.timer.stop();
 				}
+				
+				_config.success.call(window, res);
+				window[_config.callback] = null;
+				$('head')[0].removeChild(_config.script);
 			}
 		};
 		
-		if (_config.timeout) {
-			_config.timer.start();
-		}
-		
-		if (_config.method === 'get') {
-			httpRequest.open('get', _config.url + '?' + _config.arg, _config.async);
-			httpRequest.send();
-		} else if (_config.method === 'post') {
-			httpRequest.open('post', _config.url, _config.async);
-			httpRequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			httpRequest.send(_config.arg);
-		}
+		var d = new Date();
+		_config.startTime = d.getTime();
+		_config.timer.start();
+		$('head')[0].appendChild(_config.script);
 	}
 	
-	function jsonp(_url) {
-		var script = document.createElement('script');
-		script.type = 'text/javascript';
-		script.src = _url;
-		document.getElementsByTagName('head')[0].appendChild(script);
-	}
 	/* int rand(int _min, int _max) */
 	function rand(_min, _max) {
 		return Math.random() * (_max - _min) + _min;
 	}
 	
-	return {
-		version: yunVersion,
-		isExist: isExist,
-		isArray: isArray,
-		isBoolean: isBoolean,
-		isFunction: isFunction,
-		isNumber: isNumber,
-		isObject: isObject,
-		isString: isString,
-		isInteger: isInteger,
-		isFloat: isFloat,
-		timer: timer,
-		ajax: ajax,
-		jsonp: jsonp,
-		rand: rand
+	$.version = function() {
+		return yunVersion;
 	};
+	$.isExist = isExist;
+	$.isArray = isArray;
+	$.isBoolean = isBoolean;
+	$.isFunction = isFunction;
+	$.isNumber = isNumber;
+	$.isObject = isObject;
+	$.isString = isString;
+	$.isInteger = isInteger;
+	$.isFloat = isFloat;
+	$.timer = timer;
+	$.jsonp = jsonp;
+	$.rand = rand;
+	return $;
 })();
