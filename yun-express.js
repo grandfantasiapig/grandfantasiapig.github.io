@@ -180,6 +180,108 @@ window.yun = (function() {
 		$('head')[0].appendChild(_config.script);
 	}
 	
+	/* object base64
+		.string encode(string _text, optional bool _encodeURI, optional bool _utf16to8),
+		.string decode(string _text, optional bool _decodeURI, optional bool _utf8to16)
+		
+		example = {
+			"for chinese" : {
+				encode: base64.encode('chinese', true),
+				decode: base64.decode('chinese', true)
+			},
+			
+			"for google apps script chinese" : {
+				encode: base64.encode('chinese', true, true),
+				decode: base64.decode('chinese', true, true)
+			}
+		}
+	} */
+	var base64 = {
+		encode: function(_text, _encodeURI, _utf16to8) {
+			if (_encodeURI === true) {
+				if (_utf16to8 === true) {
+					_text = this.utf16to8(_text);
+					_text = decodeURIComponent(_text);
+				} else {
+					_text = encodeURIComponent(_text);
+				}
+			}
+			_text = btoa(_text);
+			return _text;
+		},
+		
+		decode: function(_text, _decodeURI, _utf8to16) {
+			_text = atob(_text);
+			if (_decodeURI === true) {
+				_text = decodeURIComponent(_text);
+				if (_utf8to16 === true) {
+					_text = this.utf8to16(_text);
+				}
+			}
+			return _text;
+		},
+		
+		utf16to8: function(str) {
+			var out, i, len, c;
+			
+			out = '';
+			len = str.length;
+			for (i = 0; i < len; i++) {
+				c = str.charCodeAt(i);
+				if (c >= 0x0001 && c <= 0x007f) {
+					out += str.charAt(i);
+				} else if (c > 0x07ff) {
+					out += String.fromCharCode(0xe0 | ((c >> 12) & 0x0f));
+					out += String.fromCharCode(0x80 | ((c >> 6) & 0x3f));
+					out += String.fromCharCode(0x80 | ((c >> 0) & 0x3f));
+				} else {
+					out += String.fromCharCode(0xc0 | ((c >> 6) & 0x1f));
+					out += String.fromCharCode(0x80 | ((c >> 0) & 0x3f));
+				}
+			}
+			return out;
+		},
+		
+		utf8to16: function(str) {
+			var out, i, len, c;
+			var char2, char3;
+			
+			out = '';
+			len = str.length;
+			i = 0;
+			while (i < len) {
+				c = str.charCodeAt(i++);
+				switch (c >> 4) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+						// 0xxxxxxx
+						out += str.charAt(i - 1);
+						break;
+					case 12:
+					case 13:
+						// 110x xxxx   10xx xxxx
+						char2 = str.charCodeAt(i++);
+						out += String.fromCharCode(((c & 0x1f) << 6) | (char2 & 0x3f));
+						break;
+					case 14:
+						// 1110 xxxx  10xx xxxx  10xx xxxx
+						char2 = str.charCodeAt(i++);
+						char3 = str.charCodeAt(i++);
+						out += String.fromCharCode(((c & 0x0f) << 12) | ((char2 & 0x3f) << 6) | ((char3 & 0x3f) << 0));
+						break;
+				}
+			}
+			
+			return out;
+		}
+	};
+	
 	/* int rand(int _min, int _max) */
 	function rand(_min, _max) {
 		return Math.random() * (_max - _min) + _min;
@@ -199,6 +301,7 @@ window.yun = (function() {
 	$.isFloat = isFloat;
 	$.timer = timer;
 	$.jsonp = jsonp;
+	$.base64 = base64;
 	$.rand = rand;
 	return $;
 })();
