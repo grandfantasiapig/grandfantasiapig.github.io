@@ -26,6 +26,12 @@
 			tab.addEventListener('click' , function() {
 				me.setPage.call(me, this.index);
 			}.bind(tab));
+			tab.addEventListener('dblclick' , function() {
+				if (this.classList.contains('active')) {
+					var index = this.index;
+					$('#tabiframe' + index)[0].src = $('#tabiframe' + index)[0].src;
+				}
+			}.bind(tab));
 			panel0.appendChild(tab);
 			
 			if (i === data.length - 1) {
